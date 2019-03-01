@@ -11,6 +11,7 @@ use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Gloudemans\Shoppingcart\Exceptions\UnknownModelException;
 use Gloudemans\Shoppingcart\Exceptions\InvalidRowIDException;
 use Gloudemans\Shoppingcart\Exceptions\CartAlreadyStoredException;
+use Money\Currency;
 use Money\Money;
 
 class Cart
@@ -84,7 +85,7 @@ class Cart
      * @param mixed $id
      * @param mixed $name
      * @param int|float $qty
-     * @param Money $price
+     * @param Money|null $price
      * @param array $options
      * @return \Gloudemans\Shoppingcart\CartItem
      */
@@ -255,12 +256,27 @@ class Cart
     public function total()
     {
         $content = $this->getContent();
-        $currency = $content->first()->tax->getCurrency();
+        $currency = $this->getCurrency();
         $total = $content->reduce(function ($total, CartItem $cartItem) {
             return $total->add($cartItem->priceTax->multiply($cartItem->qty));
         }, new Money(0, $currency));
 
         return $total;
+    }
+
+    /**
+     * @return Currency
+     */
+    private function getCurrency()
+    {
+        $content = $this->getContent();
+        if ($content->isEmpty())
+        {
+            return new Currency(config('cart.currency'));
+        }
+
+        return $content->first()->tax->getCurrency();
+
     }
 
     /**
@@ -271,7 +287,7 @@ class Cart
     public function tax()
     {
         $content = $this->getContent();
-        $currency = $content->first()->tax->getCurrency();
+        $currency = $this->getCurrency();
         $tax = $content->reduce(function ($tax, CartItem $cartItem) {
             return $tax->add($cartItem->tax->multiply($cartItem->qty));
         }, new Money(0, $currency));
@@ -287,7 +303,7 @@ class Cart
     public function subtotal()
     {
         $content = $this->getContent();
-        $currency = $content->first()->tax->getCurrency();
+        $currency = $this->getCurrency();
         $subTotal = $content->reduce(function ($subTotal, CartItem $cartItem) {
             return $subTotal->add($cartItem->price->multiply($cartItem->qty));
         }, new Money(0, $currency));

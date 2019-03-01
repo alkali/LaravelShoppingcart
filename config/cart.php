@@ -13,6 +13,8 @@ return [
     */
 
     'tax' => 21,
+    //default currency
+    'currency' => 'USD',
 
     /*
     |--------------------------------------------------------------------------
@@ -60,7 +62,7 @@ return [
 
         'decimal_point' => '.',
 
-        'thousand_seperator' => ','
+        'thousand_seperator' => ',',
 
     ],
 
