@@ -3,9 +3,12 @@
 namespace Gloudemans\Tests\Shoppingcart\Fixtures;
 
 use Gloudemans\Shoppingcart\Contracts\Buyable;
+use Money\Currency;
+use Money\Money;
 
 class BuyableProduct implements Buyable
 {
+
     /**
      * @var int|string
      */
@@ -17,7 +20,7 @@ class BuyableProduct implements Buyable
     private $name;
 
     /**
-     * @var float
+     * @var Money
      */
     private $price;
 
@@ -25,11 +28,15 @@ class BuyableProduct implements Buyable
      * BuyableProduct constructor.
      *
      * @param int|string $id
-     * @param string     $name
-     * @param float      $price
+     * @param string $name
+     * @param Money $price
      */
-    public function __construct($id = 1, $name = 'Item name', $price = 10.00)
+    public function __construct($id = 1, $name = 'Item name', $price = null)
     {
+        if (is_null($price))
+        {
+            $price = new Money(1000, new Currency('USD'));
+        }
         $this->id = $id;
         $this->name = $name;
         $this->price = $price;
@@ -58,7 +65,7 @@ class BuyableProduct implements Buyable
     /**
      * Get the price of the Buyable item.
      *
-     * @return float
+     * @return Money
      */
     public function getBuyablePrice($options = null)
     {

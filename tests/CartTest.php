@@ -2,7 +2,10 @@
 
 namespace Gloudemans\Tests\Shoppingcart;
 
+use Illuminate\Contracts\Auth\Guard;
 use Mockery;
+use Money\Currency;
+use Money\Money;
 use PHPUnit\Framework\Assert;
 use Gloudemans\Shoppingcart\Cart;
 use Orchestra\Testbench\TestCase;
@@ -18,6 +21,7 @@ use Gloudemans\Tests\Shoppingcart\Fixtures\BuyableProduct;
 
 class CartTest extends TestCase
 {
+
     use CartAssertions;
 
     /**
@@ -34,7 +38,7 @@ class CartTest extends TestCase
     /**
      * Define environment setup.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param  \Illuminate\Foundation\Application $app
      * @return void
      */
     protected function getEnvironmentSetUp($app)
@@ -61,7 +65,7 @@ class CartTest extends TestCase
         parent::setUp();
 
         $this->app->afterResolving('migrator', function ($migrator) {
-            $migrator->path(realpath(__DIR__.'/../database/migrations'));
+            $migrator->path(realpath(__DIR__ . '/../database/migrations'));
         });
     }
 
@@ -85,7 +89,7 @@ class CartTest extends TestCase
         $this->assertItemsInCart(1, $cart->instance(Cart::DEFAULT_INSTANCE));
         $this->assertItemsInCart(1, $cart->instance('wishlist'));
     }
-    
+
     /** @test */
     public function it_can_add_an_item()
     {
@@ -152,7 +156,7 @@ class CartTest extends TestCase
 
         $cart = $this->getCart();
 
-        $cart->add(1, 'Test item', 1, 10.00);
+        $cart->add(1, 'Test item', 1, new Money(1000, new Currency('USD')));
 
         $this->assertEquals(1, $cart->count());
 
@@ -166,7 +170,7 @@ class CartTest extends TestCase
 
         $cart = $this->getCart();
 
-        $cart->add(['id' => 1, 'name' => 'Test item', 'qty' => 1, 'price' => 10.00]);
+        $cart->add(['id' => 1, 'name' => 'Test item', 'qty' => 1, 'price' => new Money(1000, new Currency('USD'))]);
 
         $this->assertEquals(1, $cart->count());
 
@@ -181,9 +185,9 @@ class CartTest extends TestCase
         $cart = $this->getCart();
 
         $cart->add([
-            ['id' => 1, 'name' => 'Test item 1', 'qty' => 1, 'price' => 10.00],
-            ['id' => 2, 'name' => 'Test item 2', 'qty' => 1, 'price' => 10.00]
-        ]);
+                       ['id' => 1, 'name' => 'Test item 1', 'qty' => 1, 'price' => new Money(1000, new Currency('USD'))],
+                       ['id' => 2, 'name' => 'Test item 2', 'qty' => 1, 'price' => new Money(1000, new Currency('USD'))],
+                   ]);
 
         $this->assertEquals(2, $cart->count());
 
@@ -219,7 +223,7 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(null, 'Some title', 1, 10.00);
+        $cart->add(null, 'Some title', 1, new Money(1000, new Currency('USD')));
     }
 
     /**
@@ -231,7 +235,7 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(1, null, 1, 10.00);
+        $cart->add(1, null, 1, new Money(1000, new Currency('USD')));
     }
 
     /**
@@ -243,7 +247,7 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(1, 'Some title', 'invalid', 10.00);
+        $cart->add(1, 'Some title', 'invalid', new Money(1000, new Currency('USD')));
     }
 
     /**
@@ -422,7 +426,7 @@ class CartTest extends TestCase
 
         $cart->add(new BuyableProduct);
 
-        $cart->update('027c91341fd5cf4d2579b49c4b6a90da', -1);
+        $cart->update('027c91341fd5cf4d2579b49c4b6a90da', - 1);
 
         $this->assertItemsInCart(0, $cart);
         $this->assertRowsInCart(0, $cart);
@@ -479,29 +483,29 @@ class CartTest extends TestCase
 
         $this->assertInstanceOf(Collection::class, $content);
         $this->assertEquals([
-            '027c91341fd5cf4d2579b49c4b6a90da' => [
-                'rowId' => '027c91341fd5cf4d2579b49c4b6a90da',
-                'id' => 1,
-                'name' => 'Item name',
-                'qty' => 1,
-                'price' => 10.00,
-                'tax' => 2.10,
-                'subtotal' => 10.0,
-                'isSaved' => false,
-                'options' => [],
-            ],
-            '370d08585360f5c568b18d1f2e4ca1df' => [
-                'rowId' => '370d08585360f5c568b18d1f2e4ca1df',
-                'id' => 2,
-                'name' => 'Item name',
-                'qty' => 1,
-                'price' => 10.00,
-                'tax' => 2.10,
-                'subtotal' => 10.0,
-                'isSaved' => false,
-                'options' => [],
-            ]
-        ], $content->toArray());
+                                '027c91341fd5cf4d2579b49c4b6a90da' => [
+                                    'rowId'    => '027c91341fd5cf4d2579b49c4b6a90da',
+                                    'id'       => 1,
+                                    'name'     => 'Item name',
+                                    'qty'      => 1,
+                                    'price'    => (new Money(1000, new Currency('USD'))),
+                                    'tax'      => (new Money(210, new Currency('USD'))),
+                                    'subtotal' => (new Money(1000, new Currency('USD'))),
+                                    'isSaved'  => false,
+                                    'options'  => [],
+                                ],
+                                '370d08585360f5c568b18d1f2e4ca1df' => [
+                                    'rowId'    => '370d08585360f5c568b18d1f2e4ca1df',
+                                    'id'       => 2,
+                                    'name'     => 'Item name',
+                                    'qty'      => 1,
+                                    'price'    => (new Money(1000, new Currency('USD'))),
+                                    'tax'      => (new Money(210, new Currency('USD'))),
+                                    'subtotal' => (new Money(1000, new Currency('USD'))),
+                                    'isSaved'  => false,
+                                    'options'  => [],
+                                ],
+                            ], $content->toArray());
     }
 
     /** @test */
@@ -523,23 +527,11 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct(1, 'First item', 10.00));
-        $cart->add(new BuyableProduct(2, 'Second item', 25.00), 2);
+        $cart->add(new BuyableProduct(1, 'First item', new Money(1000, new Currency('USD'))));
+        $cart->add(new BuyableProduct(2, 'Second item', new Money(2500, new Currency('USD'))), 2);
 
         $this->assertItemsInCart(3, $cart);
-        $this->assertEquals(60.00, $cart->subtotal());
-    }
-
-    /** @test */
-    public function it_can_return_a_formatted_total()
-    {
-        $cart = $this->getCart();
-
-        $cart->add(new BuyableProduct(1, 'First item', 1000.00));
-        $cart->add(new BuyableProduct(2, 'Second item', 2500.00), 2);
-
-        $this->assertItemsInCart(3, $cart);
-        $this->assertEquals('6.000,00', $cart->subtotal(2, ',', '.'));
+        $this->assertEquals(new Money(6000, new Currency('USD')), $cart->subtotal());
     }
 
     /** @test */
@@ -611,7 +603,7 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(1, 'Test item', 1, 10.00);
+        $cart->add(1, 'Test item', 1, new Money(1000, new Currency('USD')));
 
         $cart->associate('027c91341fd5cf4d2579b49c4b6a90da', new ProductModel);
 
@@ -629,7 +621,7 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(1, 'Test item', 1, 10.00);
+        $cart->add(1, 'Test item', 1, new Money(1000, new Currency('USD')));
 
         $cart->associate('027c91341fd5cf4d2579b49c4b6a90da', 'SomeModel');
     }
@@ -639,7 +631,7 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(1, 'Test item', 1, 10.00);
+        $cart->add(1, 'Test item', 1, new Money(1000, new Currency('USD')));
 
         $cart->associate('027c91341fd5cf4d2579b49c4b6a90da', new ProductModel);
 
@@ -654,35 +646,24 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct(1, 'Some title', 9.99), 3);
+        $cart->add(new BuyableProduct(1, 'Some title', new Money(999, new Currency('USD'))), 3);
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
-        $this->assertEquals(29.97, $cartItem->subtotal);
+        $this->assertEquals(new Money(2997, new Currency('USD')), $cartItem->subtotal);
     }
 
-    /** @test */
-    public function it_can_return_a_formatted_subtotal()
-    {
-        $cart = $this->getCart();
-
-        $cart->add(new BuyableProduct(1, 'Some title', 500), 3);
-
-        $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
-
-        $this->assertEquals('1.500,00', $cartItem->subtotal(2, ',', '.'));
-    }
 
     /** @test */
     public function it_can_calculate_tax_based_on_the_default_tax_rate_in_the_config()
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct(1, 'Some title', 10.00), 1);
+        $cart->add(new BuyableProduct(1, 'Some title', new Money(1000, new Currency('USD'))), 1);
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
-        $this->assertEquals(2.10, $cartItem->tax);
+        $this->assertEquals(new Money(210, new Currency('USD')), $cartItem->tax);
     }
 
     /** @test */
@@ -690,108 +671,39 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct(1, 'Some title', 10.00), 1);
+        $cart->add(new BuyableProduct(1, 'Some title', new Money(1000, new Currency('USD'))), 1);
 
         $cart->setTax('027c91341fd5cf4d2579b49c4b6a90da', 19);
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
-        $this->assertEquals(1.90, $cartItem->tax);
+        $this->assertEquals(new Money(190, new Currency('USD')), $cartItem->tax);
     }
 
-    /** @test */
-    public function it_can_return_the_calculated_tax_formatted()
-    {
-        $cart = $this->getCart();
-
-        $cart->add(new BuyableProduct(1, 'Some title', 10000.00), 1);
-
-        $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
-
-        $this->assertEquals('2.100,00', $cartItem->tax(2, ',', '.'));
-    }
 
     /** @test */
     public function it_can_calculate_the_total_tax_for_all_cart_items()
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct(1, 'Some title', 10.00), 1);
-        $cart->add(new BuyableProduct(2, 'Some title', 20.00), 2);
+        $cart->add(new BuyableProduct(1, 'Some title', new Money(1000, new Currency('USD'))), 1);
+        $cart->add(new BuyableProduct(2, 'Some title', new Money(2000, new Currency('USD'))), 2);
 
-        $this->assertEquals(10.50, $cart->tax);
+        $this->assertEquals(new Money(1050, new Currency('USD')), $cart->tax);
     }
 
-    /** @test */
-    public function it_can_return_formatted_total_tax()
-    {
-        $cart = $this->getCart();
-
-        $cart->add(new BuyableProduct(1, 'Some title', 1000.00), 1);
-        $cart->add(new BuyableProduct(2, 'Some title', 2000.00), 2);
-
-        $this->assertEquals('1.050,00', $cart->tax(2, ',', '.'));
-    }
 
     /** @test */
     public function it_can_return_the_subtotal()
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct(1, 'Some title', 10.00), 1);
-        $cart->add(new BuyableProduct(2, 'Some title', 20.00), 2);
+        $cart->add(new BuyableProduct(1, 'Some title', new Money(1000, new Currency('USD'))), 1);
+        $cart->add(new BuyableProduct(2, 'Some title', new Money(2000, new Currency('USD'))), 2);
 
-        $this->assertEquals(50.00, $cart->subtotal);
+        $this->assertEquals(new Money(5000, new Currency('USD')), $cart->subtotal);
     }
 
-    /** @test */
-    public function it_can_return_formatted_subtotal()
-    {
-        $cart = $this->getCart();
-
-        $cart->add(new BuyableProduct(1, 'Some title', 1000.00), 1);
-        $cart->add(new BuyableProduct(2, 'Some title', 2000.00), 2);
-
-        $this->assertEquals('5000,00', $cart->subtotal(2, ',', ''));
-    }
-
-    /** @test */
-    public function it_can_return_cart_formated_numbers_by_config_values()
-    {
-        $this->setConfigFormat(2, ',', '');
-
-        $cart = $this->getCart();
-
-        $cart->add(new BuyableProduct(1, 'Some title', 1000.00), 1);
-        $cart->add(new BuyableProduct(2, 'Some title', 2000.00), 2);
-
-        $this->assertEquals('5000,00', $cart->subtotal());
-        $this->assertEquals('1050,00', $cart->tax());
-        $this->assertEquals('6050,00', $cart->total());
-
-        $this->assertEquals('5000,00', $cart->subtotal);
-        $this->assertEquals('1050,00', $cart->tax);
-        $this->assertEquals('6050,00', $cart->total);
-    }
-
-    /** @test */
-    public function it_can_return_cartItem_formated_numbers_by_config_values()
-    {
-        $this->setConfigFormat(2, ',', '');
-
-        $cart = $this->getCart();
-
-        $cart->add(new BuyableProduct(1, 'Some title', 2000.00), 2);
-
-        $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
-
-        $this->assertEquals('2000,00', $cartItem->price());
-        $this->assertEquals('2420,00', $cartItem->priceTax());
-        $this->assertEquals('4000,00', $cartItem->subtotal());
-        $this->assertEquals('4840,00', $cartItem->total());
-        $this->assertEquals('420,00', $cartItem->tax());
-        $this->assertEquals('840,00', $cartItem->taxTotal());
-    }
 
     /** @test */
     public function it_can_store_the_cart_in_a_database()
@@ -833,7 +745,7 @@ class CartTest extends TestCase
         $serialized = serialize($cart->content());
 
         $this->assertDatabaseHas('shoppingcart', ['identifier' => $identifier, 'instance' => 'default', 'content' => $serialized]);
-        
+
         Event::assertDispatched('cart.stored');
     }
 
@@ -858,7 +770,7 @@ class CartTest extends TestCase
 
         $cart->restore($identifier);
 
-        $this->assertItemsInCart(1, $cart);       
+        $this->assertItemsInCart(1, $cart);
 
         Event::assertDispatched('cart.restored');
     }
@@ -882,22 +794,22 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct(1, 'First item', 10.00), 2);
+        $cart->add(new BuyableProduct(1, 'First item', new Money(1000, new Currency('USD'))), 2);
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
         $cart->setTax('027c91341fd5cf4d2579b49c4b6a90da', 19);
 
-        $this->assertEquals(10.00, $cartItem->price(2));
-        $this->assertEquals(11.90, $cartItem->priceTax(2));
-        $this->assertEquals(20.00, $cartItem->subtotal(2));
-        $this->assertEquals(23.80, $cartItem->total(2));
-        $this->assertEquals(1.90, $cartItem->tax(2));
-        $this->assertEquals(3.80, $cartItem->taxTotal(2));
+        $this->assertEquals(new Money(1000, new Currency('USD')), $cartItem->price());
+        $this->assertEquals(new Money(1190, new Currency('USD')), $cartItem->priceTax());
+        $this->assertEquals(new Money(2000, new Currency('USD')), $cartItem->subtotal());
+        $this->assertEquals(new Money(2380, new Currency('USD')), $cartItem->total());
+        $this->assertEquals(new Money(190, new Currency('USD')), $cartItem->tax());
+        $this->assertEquals(new Money(380, new Currency('USD')), $cartItem->taxTotal());
 
-        $this->assertEquals(20.00, $cart->subtotal(2));
-        $this->assertEquals(23.80, $cart->total(2));
-        $this->assertEquals(3.80, $cart->tax(2));
+        $this->assertEquals(new Money(2000, new Currency('USD')), $cart->subtotal());
+        $this->assertEquals(new Money(2380, new Currency('USD')), $cart->total());
+        $this->assertEquals(new Money(380, new Currency('USD')), $cart->tax());
     }
 
     /** @test */
@@ -910,8 +822,9 @@ class CartTest extends TestCase
         }));
 
         $user = Mockery::mock(Authenticatable::class);
+        $guard = Mockery::mock(Guard::class);
 
-        event(new Logout($user));
+        event(new Logout($guard, $user));
     }
 
     /**
@@ -929,8 +842,8 @@ class CartTest extends TestCase
 
     /**
      * Set the config number format.
-     * 
-     * @param int    $decimals
+     *
+     * @param int $decimals
      * @param string $decimalPoint
      * @param string $thousandSeperator
      */
