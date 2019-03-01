@@ -104,7 +104,8 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns the formatted price without TAX.
+     * Returns price without TAX.
+     * This method is still here for kinda BC
      *
      * @return Money
      */
@@ -114,7 +115,8 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns the formatted price with TAX.
+     * Returns price with TAX.
+     * This method is still here for kinda BC
      *
      * @return Money
      */
@@ -124,8 +126,9 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns the formatted subtotal.
+     * Returns subtotal.
      * Subtotal is price for whole CartItem without TAX
+     * This method is still here for kinda BC
      *
      * @return Money
      */
@@ -135,8 +138,9 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns the formatted total.
+     * Returns total.
      * Total is price for whole CartItem with TAX
+     * This method is still here for kinda BC
      *
      * @return Money
      */
@@ -146,7 +150,8 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns the formatted tax.
+     * Returns tax.
+     * This method is still here for kinda BC
      *
      * @return Money
      */
@@ -156,7 +161,8 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns the formatted tax.
+     * Returns tax.
+     * This method is still here for kinda BC
      *
      * @return Money
      */

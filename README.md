@@ -6,7 +6,7 @@
 [![License](https://poser.pugx.org/gloudemans/shoppingcart/license)](https://packagist.org/packages/gloudemans/shoppingcart)
 
 A simple shoppingcart implementation for Laravel.
-
+### This fork has a flavour of MoneyPHP.
 ## Installation
 
 Install the package through [Composer](http://getcomposer.org/). 
